@@ -16,8 +16,27 @@ class App extends Component {
         value: "Write tutorial"
       }
     ],
-    item: ""
+    item: "",
+    isLoading: true,
+    users: [],
+    error: null
   };
+
+  fetchUsers() {
+    fetch(`https://jsonplaceholder.typicode.com/users`)
+      .then(response => response.json())
+      .then(data =>
+        this.setState({
+          users: data,
+          isLoading: false,
+        })
+      )
+      .catch(error => this.setState({ error, isLoading: false }));
+  }
+  componentDidMount() {
+    this.fetchUsers();
+  }
+
 
   handleInputChange = event => {
     this.setState({ item: event.target.value });
@@ -42,6 +61,8 @@ class App extends Component {
   };
 
   render() {
+    const { isLoading, users, error } = this.state;
+
     return (
       <div className="container">
         <div className="row">
@@ -77,7 +98,7 @@ class App extends Component {
               !this.state.list.length
               ? (
                 <div className="no-task">
-                  No task!
+                  All of your tasks are complete. Nicely done!
                 </div>
               ) : (
                 <ul>
@@ -93,6 +114,27 @@ class App extends Component {
             }
           </div>
         </div>
+
+        <React.Fragment>
+        <h1>Random User</h1>
+        <section id="users">
+        {error ? <p>{error.message}</p> : null}
+        {!isLoading ? (
+          users.map(user => {
+            const { username, name, email } = user;
+            return (
+              <div key={username}>
+                <p>Name: {name}</p>
+                <p>Email Address: {email}</p>
+                <hr />
+              </div>
+            );
+          })
+        ) : (
+          <h3>Loading...</h3>
+        )}
+        </section>
+      </React.Fragment>
       </div>
     );
   }
